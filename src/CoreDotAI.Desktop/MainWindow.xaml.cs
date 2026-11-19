@@ -8,8 +8,8 @@ namespace CoreDotAI.Desktop;
 public partial class MainWindow : Window
 {
     private readonly AudioCaptureService _audioCaptureService = new();
-    private readonly OpenAiTranscriptionService _transcriptionService = new();
     private readonly GeminiInterviewService _geminiInterviewService = new();
+    private readonly GeminiAudioTranscriptionService _geminiAudioTranscriptionService = new();
     private string? _selectedAudioPath;
     private string? _sessionApiKey;
     private string? _sessionGeminiApiKey;
@@ -195,7 +195,7 @@ public partial class MainWindow : Window
     private async void TranscribeButton_Click(object sender, RoutedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(_selectedAudioPath)) return;
-        var confirm = MessageBox.Show("The selected audio file will be uploaded to OpenAI for transcription. Continue?", "Confirm audio upload", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        var confirm = MessageBox.Show("The selected WAV file will be uploaded to Google Gemini for transcription. Continue?", "Confirm Gemini audio upload", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         if (confirm != MessageBoxResult.Yes) return;
 
         TranscribeButton.IsEnabled = false;
@@ -203,7 +203,10 @@ public partial class MainWindow : Window
         TranscriptTextBox.Text = "Transcribing audio… Please wait.";
         try
         {
-            var transcript = await _transcriptionService.TranscribeAsync(_selectedAudioPath, _sessionApiKey);
+            if (string.IsNullOrWhiteSpace(_sessionGeminiApiKey))
+                throw new InvalidOperationException("Gemini API key not found. Enter your Google Gemini API key in the AI Provider panel and click Use Gemini API Key.");
+
+            var transcript = await _geminiAudioTranscriptionService.TranscribeAsync(_selectedAudioPath, _sessionGeminiApiKey);
             TranscriptTextBox.Text = transcript.Length == 0 ? "No speech was detected in this recording." : transcript;
             if (transcript.Length > 0)
             {
