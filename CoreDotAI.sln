@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreDotAI.Api", "src\CoreDotAI.Api\CoreDotAI.Api.csproj", "{A2B9F03C-8B56-4A4A-A4D8-1D50F2C33C01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreDotAI.Desktop", "src\CoreDotAI.Desktop\CoreDotAI.Desktop.csproj", "{B3C0A14D-9C67-4B5B-B5E9-2E61A3D44D02}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2B9F03C-8B56-4A4A-A4D8-1D50F2C33C01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2B9F03C-8B56-4A4A-A4D8-1D50F2C33C01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2B9F03C-8B56-4A4A-A4D8-1D50F2C33C01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2B9F03C-8B56-4A4A-A4D8-1D50F2C33C01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3C0A14D-9C67-4B5B-B5E9-2E61A3D44D02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3C0A14D-9C67-4B5B-B5E9-2E61A3D44D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3C0A14D-9C67-4B5B-B5E9-2E61A3D44D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3C0A14D-9C67-4B5B-B5E9-2E61A3D44D02}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
