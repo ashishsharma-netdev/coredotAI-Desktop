@@ -59,9 +59,11 @@
                             <CheckBox x:Name="SystemAudioCheckBox" Content="Computer / meeting audio (loopback)"
                                       IsChecked="True" Foreground="{StaticResource PrimaryText}" Margin="0,4"/>
                             <CheckBox x:Name="ConsentCheckBox"
-                                      Content="I have permission to capture and process this conversation."
-                                      Foreground="#F2C879" TextWrapping="Wrap" Margin="0,12,0,0"
-                                      Checked="ConsentCheckBox_Changed" Unchecked="ConsentCheckBox_Changed"/>
+                                      Foreground="#F2C879" Margin="0,12,0,0"
+                                      Checked="ConsentCheckBox_Changed" Unchecked="ConsentCheckBox_Changed">
+                                <TextBlock Text="I have permission to capture and process this conversation."
+                                           TextWrapping="Wrap"/>
+                            </CheckBox>
                         </StackPanel>
                     </Border>
 
