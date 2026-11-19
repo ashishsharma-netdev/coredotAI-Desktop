@@ -6,7 +6,8 @@ A Windows-first AI interview and meeting assistant. This is an independent imple
 - Phase 1: WPF desktop shell and ASP.NET Core health endpoint.
 - Phase 2: consent-gated microphone and Windows system-audio capture to local WAV files.
 - Phase 3 initial implementation: user-selected WAV transcription through the OpenAI Audio Transcriptions API.
-- Not implemented yet: live streaming transcription, AI answer generation, resume ingestion, and mock interview workflows.
+- Phase 4 initial implementation: Gemini-powered interview answer generation from a user-entered question, optional job role, and candidate-provided background.
+- Not implemented yet: live streaming transcription, resume ingestion, and mock interview workflows.
 
 ## Technology
 - .NET 8 / C#
@@ -56,7 +57,16 @@ Microphone and system audio are stored separately. System loopback captures the 
 The desktop UI provides separate masked fields for OpenAI and Google Gemini API keys. Enter each key and click its corresponding button. Keys entered in the UI are kept in memory only for the current app session and cleared when the app closes. Do not paste keys into source code or commit them to Git.
 
 - OpenAI key: used by the current WAV transcription feature. It can also be provided through the current Windows user's `OPENAI_API_KEY` environment variable.
-- Gemini key: accepted by the UI and held for the current app session; Gemini-powered answer generation is not implemented yet. Create/manage the key in [Google AI Studio](https://aistudio.google.com/apikey).
+- Gemini key: used by the Interview Coach to generate sample answers. The key is held for the current app session only. Create/manage the key in [Google AI Studio](https://aistudio.google.com/apikey).
+
+## Gemini Interview Coach
+1. Enter your Gemini API key in the AI Provider panel and click **Use Gemini API Key**.
+2. Scroll down to **Gemini Interview Coach** in the Workspace panel.
+3. Enter the job role (optional), the interview question, and any relevant candidate background (optional).
+4. Select **Generate Interview Answer**. The question and supplied context are sent to Google's Gemini API.
+5. Review the generated answer and use **Copy Answer** if needed.
+
+The coach uses Google's Gemini Interactions API with the `gemini-3.8-flash` model. Requests set `store: false`. Generated answers are suggestions: verify them and personalize any placeholders before using them. The coach is for interview preparation and should be used in line with the interview organizer's rules; it is not designed for covert assistance during a live interview.
 
 In Command Prompt, replace the placeholder with your own API key:
 ```cmd
@@ -76,6 +86,7 @@ The API currently accepts audio files up to 25 MB. This initial implementation r
 - Capture is off by default and requires explicit user confirmation.
 - Use only where all required participants have given permission and AI assistance/recording is allowed.
 - Audio remains local until the user selects a file and confirms upload for transcription.
+- Interview questions and optional candidate context are sent to Gemini only when the user selects Generate Interview Answer.
 - Never commit API keys, recordings, or personal documents.
 
 ## CI
