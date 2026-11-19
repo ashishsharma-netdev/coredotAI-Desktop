@@ -9,6 +9,7 @@ public partial class MainWindow : Window
 {
     private readonly AudioCaptureService _audioCaptureService = new();
     private readonly OpenAiTranscriptionService _transcriptionService = new();
+    private readonly GeminiInterviewService _geminiInterviewService = new();
     private string? _selectedAudioPath;
     private string? _sessionApiKey;
     private string? _sessionGeminiApiKey;
@@ -50,6 +51,64 @@ public partial class MainWindow : Window
         GeminiApiKeyPasswordBox.Clear();
         GeminiApiKeyStatusText.Text = "Gemini API key configured for this app session. AI answer generation will use it when that feature is enabled.";
         GeminiApiKeyStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
+    }
+
+    private async void GenerateAnswerButton_Click(object sender, RoutedEventArgs e)
+    {
+        var question = InterviewQuestionTextBox.Text.Trim();
+        if (string.IsNullOrWhiteSpace(question))
+        {
+            GeminiGenerationStatusText.Text = "Enter an interview question first.";
+            GeminiGenerationStatusText.Foreground = System.Windows.Media.Brushes.Orange;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_sessionGeminiApiKey))
+        {
+            GeminiGenerationStatusText.Text = "Configure your Gemini API key in the AI Provider section first.";
+            GeminiGenerationStatusText.Foreground = System.Windows.Media.Brushes.Orange;
+            return;
+        }
+
+        GenerateAnswerButton.IsEnabled = false;
+        CopyAnswerButton.IsEnabled = false;
+        GeneratedAnswerTextBox.Text = "Generating an interview answer with Gemini…";
+        GeminiGenerationStatusText.Text = "Connecting to Gemini…";
+        GeminiGenerationStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
+
+        try
+        {
+            var answer = await _geminiInterviewService.GenerateAnswerAsync(
+                _sessionGeminiApiKey,
+                question,
+                JobRoleTextBox.Text,
+                CandidateContextTextBox.Text);
+
+            GeneratedAnswerTextBox.Text = answer;
+            CopyAnswerButton.IsEnabled = !string.IsNullOrWhiteSpace(answer);
+            GeminiGenerationStatusText.Text = "Answer generated successfully.";
+            GeminiGenerationStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
+        }
+        catch (Exception ex)
+        {
+            GeneratedAnswerTextBox.Text = string.Empty;
+            GeminiGenerationStatusText.Text = $"Gemini request failed: {ex.Message}";
+            GeminiGenerationStatusText.Foreground = System.Windows.Media.Brushes.Orange;
+        }
+        finally
+        {
+            GenerateAnswerButton.IsEnabled = true;
+        }
+    }
+
+    private void CopyAnswerButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(GeneratedAnswerTextBox.Text))
+            return;
+
+        Clipboard.SetText(GeneratedAnswerTextBox.Text);
+        GeminiGenerationStatusText.Text = "Answer copied to clipboard.";
+        GeminiGenerationStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
     }
 
     private void ConsentCheckBox_Changed(object sender, RoutedEventArgs e) => UpdateStartAvailability();
