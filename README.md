@@ -7,7 +7,8 @@ A Windows-first AI interview and meeting assistant. This is an independent imple
 - Phase 2: consent-gated microphone and Windows system-audio capture to local WAV files.
 - Phase 3: user-selected WAV transcription through Google's Gemini generateContent API.
 - Phase 4 initial implementation: Gemini-powered interview answer generation from a user-entered question, optional job role, and candidate-provided background.
-- Not implemented yet: live streaming transcription, resume ingestion, and mock interview workflows.
+- Phase 5 foundation: Gemini Live WebSocket client with setup handshake, interim/final transcript event handling, PCM audio send method, and clean disconnect.
+- Not implemented yet: microphone PCM conversion/capture wiring, live transcript UI, system-audio streaming, resume ingestion, and mock interview workflows.
 
 ## Technology
 - .NET 8 / C#
@@ -58,6 +59,11 @@ The desktop UI provides separate masked fields for OpenAI and Google Gemini API 
 
 - OpenAI key: optional and not required by the current Gemini-powered transcription or interview coach.
 - Gemini key: used by the Interview Coach to generate sample answers. The key is held for the current app session only. Create/manage the key in [Google AI Studio](https://aistudio.google.com/apikey).
+
+## Gemini Live transcription foundation
+The desktop project now includes `GeminiLiveTranscriptionService`, which connects to the Gemini Live WebSocket using the configured Gemini API key and the `gemini-3.5-transcribe-live` model. It waits for `setupComplete` before accepting audio, sends 16 kHz mono signed PCM audio chunks, and exposes separate interim and final transcript events. The next implementation step is to connect the Windows microphone capture pipeline to this service and display the live transcript in the UI. The service is not yet wired to the Start capture button.
+
+Google's Live Transcription guide: https://ai.google.dev/gemini-api/docs/live-api/live-transcribe
 
 ## Gemini Interview Coach
 1. Enter your Gemini API key in the AI Provider panel and click **Use Gemini API Key**.
