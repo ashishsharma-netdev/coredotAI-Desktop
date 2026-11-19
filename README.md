@@ -66,7 +66,7 @@ The desktop UI provides separate masked fields for OpenAI and Google Gemini API 
 4. Select **Generate Interview Answer**. The question and supplied context are sent to Google's Gemini API.
 5. Review the generated answer and use **Copy Answer** if needed.
 
-The coach uses Google's Gemini Interactions API with the `gemini-3.8-flash` model. Requests set `store: false`. Generated answers are suggestions: verify them and personalize any placeholders before using them. The coach is for interview preparation and should be used in line with the interview organizer's rules; it is not designed for covert assistance during a live interview.
+The coach uses Google's Gemini Developer API `generateContent` endpoint with the `gemini-2.5-flash` model. The request limits output to 700 tokens and uses a 60-second timeout. Generated answers are suggestions: verify them and personalize any placeholders before using them. The coach is for interview preparation and should be used in line with the interview organizer's rules; it is not designed for covert assistance during a live interview.
 
 In Command Prompt, replace the placeholder with your own API key:
 ```cmd
