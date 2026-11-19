@@ -100,7 +100,7 @@ public sealed class GeminiLiveTranscriptionService : IAsyncDisposable
         {
             if (socket.State != WebSocketState.Open)
                 throw new WebSocketException("Gemini Live WebSocket is not open.");
-            await socket.SendAsync(bytes, WebSocketMessageType.Text, true, cancellationToken);
+            await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cancellationToken);
         }
         finally { _sendLock.Release(); }
     }
@@ -118,7 +118,7 @@ public sealed class GeminiLiveTranscriptionService : IAsyncDisposable
                 WebSocketReceiveResult result;
                 do
                 {
-                    result = await socket.ReceiveAsync(buffer, cancellationToken);
+                    result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), cancellationToken);
                     if (result.MessageType == WebSocketMessageType.Close)
                         return;
                     if (result.MessageType == WebSocketMessageType.Text)
