@@ -3,20 +3,23 @@
 A Windows-first AI interview and meeting assistant. This is an independent implementation and is not affiliated with ParakeetAI.
 
 ## Current status
-- **Phase 1 – complete:** WPF desktop shell and ASP.NET Core health endpoint.
-- **Phase 2 – in progress:** consent-gated microphone and Windows system-audio capture to local WAV files.
-- **Not implemented yet:** speech-to-text, AI answer generation, resume ingestion, and mock interview workflows.
+- Phase 1: WPF desktop shell and ASP.NET Core health endpoint.
+- Phase 2: consent-gated microphone and Windows system-audio capture to local WAV files.
+- Phase 3 initial implementation: user-selected WAV transcription through the OpenAI Audio Transcriptions API.
+- Not implemented yet: live streaming transcription, AI answer generation, resume ingestion, and mock interview workflows.
 
 ## Technology
 - .NET 8 / C#
 - WPF desktop client
 - ASP.NET Core Minimal API
 - NAudio for Windows audio capture
+- OpenAI Audio Transcriptions API using model gpt-transcribe
 
 ## Prerequisites
 - Windows 10/11
 - .NET 8 SDK
 - Visual Studio 2022 with .NET desktop and ASP.NET workloads
+- An OpenAI API key with API billing/credits enabled for transcription
 
 ## Build
 ```powershell
@@ -36,30 +39,47 @@ dotnet run --project .\src\CoreDotAI.Desktop
 ```
 
 ## Audio capture
-1. Connect the microphone and play the meeting audio through the Windows playback device.
+1. Connect the microphone and play meeting audio through the Windows playback device.
 2. Launch CoreDotAI.
 3. Select the desired audio sources.
 4. Confirm that you have permission to capture/process the conversation.
-5. Select **Start capture**. The app displays a recording indicator.
-6. Select **Stop capture** to close and finalize the WAV files.
+5. Select Start capture. The app displays a recording indicator.
+6. Select Stop capture to finalize the WAV files.
 
 Files are stored under:
-`%LOCALAPPDATA%\CoreDotAI\Recordings\<session timestamp>\`
+%LOCALAPPDATA%\CoreDotAI\Recordings\<session timestamp>\
 
-Microphone and system audio are stored separately. This phase does not upload audio or perform transcription. System loopback captures the default Windows playback device; it does not extract audio directly from a meeting application's private stream.
+Microphone and system audio are stored separately. System loopback captures the default Windows playback device; it does not extract audio directly from a meeting application's private stream.
 
-## Privacy and responsible use
+## Speech-to-text setup
+CoreDotAI reads the OpenAI API key from the current Windows user's OPENAI_API_KEY environment variable. Do not paste the key into source code or commit it to Git.
+
+In Command Prompt, replace the placeholder with your own API key:
+```cmd
+setx OPENAI_API_KEY "YOUR_OPENAI_API_KEY"
+```
+Close and reopen Command Prompt and CoreDotAI after running setx. Never share screenshots or logs containing the key.
+
+To transcribe:
+1. Select Select WAV and choose a recorded WAV file.
+2. Confirm that the selected recording may be uploaded for processing.
+3. Select Transcribe and confirm the upload.
+4. The transcript appears in the app and is saved beside the audio as a .transcript.txt file.
+
+The API currently accepts audio files up to 25 MB. This initial implementation rejects larger files; long-recording chunking and live streaming will be added later.
+
+## Privacy
 - Capture is off by default and requires explicit user confirmation.
 - Use only where all required participants have given permission and AI assistance/recording is allowed.
-- A visible recording indicator and immediate stop control are provided.
-- Audio remains local in this phase. Never commit API keys, recordings, or personal documents.
+- Audio remains local until the user selects a file and confirms upload for transcription.
+- Never commit API keys, recordings, or personal documents.
 
 ## CI
 A Windows GitHub Actions workflow restores and builds the solution on pushes and pull requests.
 
 ## Roadmap
 1. Desktop/API foundation
-2. Audio capture and transcription
-3. AI answer orchestration
-4. Resume context and mock interviews
+2. Audio capture and speech-to-text
+3. Live streaming transcription and AI answer orchestration
+4. Resume context and mock interview workflows
 5. Persistence, settings, packaging, and tests
