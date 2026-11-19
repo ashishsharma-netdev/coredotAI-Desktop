@@ -49,7 +49,7 @@ public partial class MainWindow : Window
 
         _sessionGeminiApiKey = key;
         GeminiApiKeyPasswordBox.Clear();
-        GeminiApiKeyStatusText.Text = "Gemini API key configured for this app session. AI answer generation will use it when that feature is enabled.";
+        GeminiApiKeyStatusText.Text = "Gemini API key configured for this session. Ready to generate interview answers.";
         GeminiApiKeyStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
     }
 
