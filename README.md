@@ -14,6 +14,7 @@ A Windows-first AI interview and meeting assistant. This is an independent imple
 - ASP.NET Core Minimal API
 - NAudio for Windows audio capture
 - OpenAI Audio Transcriptions API using model gpt-transcribe
+- Google Gemini API key entry for the upcoming AI answer-generation feature
 
 ## Prerequisites
 - Windows 10/11
@@ -51,8 +52,11 @@ Files are stored under:
 
 Microphone and system audio are stored separately. System loopback captures the default Windows playback device; it does not extract audio directly from a meeting application's private stream.
 
-## Speech-to-text setup
-CoreDotAI reads the OpenAI API key from the current Windows user's OPENAI_API_KEY environment variable. Do not paste the key into source code or commit it to Git.
+## API key setup
+The desktop UI provides separate masked fields for OpenAI and Google Gemini API keys. Enter each key and click its corresponding button. Keys entered in the UI are kept in memory only for the current app session and cleared when the app closes. Do not paste keys into source code or commit them to Git.
+
+- OpenAI key: used by the current WAV transcription feature. It can also be provided through the current Windows user's `OPENAI_API_KEY` environment variable.
+- Gemini key: accepted by the UI and held for the current app session; Gemini-powered answer generation is not implemented yet. Create/manage the key in [Google AI Studio](https://aistudio.google.com/apikey).
 
 In Command Prompt, replace the placeholder with your own API key:
 ```cmd
