@@ -11,6 +11,7 @@ public partial class MainWindow : Window
     private readonly OpenAiTranscriptionService _transcriptionService = new();
     private string? _selectedAudioPath;
     private string? _sessionApiKey;
+    private string? _sessionGeminiApiKey;
 
     public MainWindow()
     {
@@ -33,6 +34,22 @@ public partial class MainWindow : Window
         ApiKeyPasswordBox.Clear();
         ApiKeyStatusText.Text = "API key configured for this app session.";
         ApiKeyStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
+    }
+
+    private void UseGeminiApiKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        var key = GeminiApiKeyPasswordBox.Password.Trim();
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            GeminiApiKeyStatusText.Text = "Enter your Google Gemini API key first.";
+            GeminiApiKeyStatusText.Foreground = System.Windows.Media.Brushes.Orange;
+            return;
+        }
+
+        _sessionGeminiApiKey = key;
+        GeminiApiKeyPasswordBox.Clear();
+        GeminiApiKeyStatusText.Text = "Gemini API key configured for this app session. AI answer generation will use it when that feature is enabled.";
+        GeminiApiKeyStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
     }
 
     private void ConsentCheckBox_Changed(object sender, RoutedEventArgs e) => UpdateStartAvailability();
@@ -147,6 +164,7 @@ public partial class MainWindow : Window
     protected override async void OnClosed(EventArgs e)
     {
         _sessionApiKey = null;
+        _sessionGeminiApiKey = null;
         await _audioCaptureService.StopAsync();
         _audioCaptureService.Dispose();
         base.OnClosed(e);
