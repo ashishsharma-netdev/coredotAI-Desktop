@@ -10,7 +10,7 @@ public sealed class OpenAiTranscriptionService
     private const long MaxFileSizeBytes = 25L * 1024 * 1024;
     private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromMinutes(5) };
 
-    public async Task<string> TranscribeAsync(string filePath, CancellationToken cancellationToken = default)
+    public async Task<string> TranscribeAsync(string filePath, string? suppliedApiKey = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             throw new FileNotFoundException("Select an existing audio file to transcribe.", filePath);
@@ -21,10 +21,12 @@ public sealed class OpenAiTranscriptionService
         if (fileInfo.Length > MaxFileSizeBytes)
             throw new InvalidOperationException("The selected file is larger than 25 MB. Select a shorter recording.");
 
-        var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User)
-            ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        var apiKey = suppliedApiKey;
         if (string.IsNullOrWhiteSpace(apiKey))
-            throw new InvalidOperationException("OpenAI API key not found. Set the OPENAI_API_KEY user environment variable, then restart CoreDotAI.");
+            apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User)
+                ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new InvalidOperationException("OpenAI API key not found. Enter it in the AI Provider panel or configure OPENAI_API_KEY in Windows.");
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/audio/transcriptions");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
