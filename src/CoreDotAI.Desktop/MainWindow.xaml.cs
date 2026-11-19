@@ -10,12 +10,29 @@ public partial class MainWindow : Window
     private readonly AudioCaptureService _audioCaptureService = new();
     private readonly OpenAiTranscriptionService _transcriptionService = new();
     private string? _selectedAudioPath;
+    private string? _sessionApiKey;
 
     public MainWindow()
     {
         InitializeComponent();
         OutputFolderText.Text = $"Local storage: {AudioCaptureService.RecordingsRoot}";
         UpdateStartAvailability();
+    }
+
+    private void UseApiKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        var key = ApiKeyPasswordBox.Password.Trim();
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            ApiKeyStatusText.Text = "Enter your OpenAI API key first.";
+            ApiKeyStatusText.Foreground = System.Windows.Media.Brushes.Orange;
+            return;
+        }
+
+        _sessionApiKey = key;
+        ApiKeyPasswordBox.Clear();
+        ApiKeyStatusText.Text = "API key configured for this app session.";
+        ApiKeyStatusText.Foreground = System.Windows.Media.Brushes.LightGreen;
     }
 
     private void ConsentCheckBox_Changed(object sender, RoutedEventArgs e) => UpdateStartAvailability();
@@ -110,7 +127,7 @@ public partial class MainWindow : Window
         TranscriptTextBox.Text = "Transcribing audio… Please wait.";
         try
         {
-            var transcript = await _transcriptionService.TranscribeAsync(_selectedAudioPath);
+            var transcript = await _transcriptionService.TranscribeAsync(_selectedAudioPath, _sessionApiKey);
             TranscriptTextBox.Text = transcript.Length == 0 ? "No speech was detected in this recording." : transcript;
             if (transcript.Length > 0)
             {
@@ -129,6 +146,7 @@ public partial class MainWindow : Window
 
     protected override async void OnClosed(EventArgs e)
     {
+        _sessionApiKey = null;
         await _audioCaptureService.StopAsync();
         _audioCaptureService.Dispose();
         base.OnClosed(e);
