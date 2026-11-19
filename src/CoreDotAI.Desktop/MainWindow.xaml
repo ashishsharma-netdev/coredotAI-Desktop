@@ -53,7 +53,7 @@
                                     <Button x:Name="TranscribeButton" Content="Transcribe" Click="TranscribeButton_Click" Padding="12,6" Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0" IsEnabled="False"/>
                                 </StackPanel>
                             </DockPanel>
-                            <TextBox x:Name="TranscriptTextBox" Grid.Row="1" IsReadOnly="True" Text="Select a WAV recording, then choose Transcribe. Audio is uploaded only after you explicitly confirm."
+                            <TextBox x:Name="TranscriptTextBox" Grid.Row="1" IsReadOnly="True" Text="Select a WAV recording, then choose Transcribe. The selected audio is uploaded to Gemini only after you confirm."
                                      Background="#0D131D" Foreground="{StaticResource PrimaryText}" BorderThickness="0" Padding="12" TextWrapping="Wrap" AcceptsReturn="True"
                                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
                         </Grid>
@@ -75,11 +75,11 @@
                     <Border Background="#111722" CornerRadius="12" Padding="14" Margin="0,0,0,12">
                         <StackPanel>
                             <TextBlock Text="AI PROVIDER" Foreground="{StaticResource SecondaryText}" FontSize="10" FontWeight="Bold"/>
-                            <TextBlock Text="OpenAI transcription" Foreground="{StaticResource PrimaryText}" Margin="0,6,0,10"/>
-                            <TextBlock Text="API KEY" Foreground="{StaticResource SecondaryText}" FontSize="10" Margin="0,0,0,6"/>
+                            <TextBlock Text="Google Gemini • transcription + interview coach" Foreground="{StaticResource PrimaryText}" Margin="0,6,0,10"/>
+                            <TextBlock Text="OPENAI API KEY (OPTIONAL)" Foreground="{StaticResource SecondaryText}" FontSize="10" Margin="0,0,0,6"/>
                             <PasswordBox x:Name="ApiKeyPasswordBox" Padding="9" Background="#0D131D" Foreground="White" BorderBrush="#343B4B" BorderThickness="1"/>
                             <Button x:Name="UseApiKeyButton" Content="Use API Key" Click="UseApiKeyButton_Click" Padding="10,8" Margin="0,10,0,0" Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"/>
-                            <TextBlock x:Name="ApiKeyStatusText" Text="No key entered. You can also use OPENAI_API_KEY from Windows." Foreground="{StaticResource SecondaryText}" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0"/>
+                            <TextBlock x:Name="ApiKeyStatusText" Text="Optional: OpenAI key is not needed for Gemini transcription or interview answers." Foreground="{StaticResource SecondaryText}" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0"/>
                             <TextBlock Text="GOOGLE GEMINI API KEY" Foreground="{StaticResource SecondaryText}" FontSize="10" FontWeight="Bold" Margin="0,16,0,6"/>
                             <PasswordBox x:Name="GeminiApiKeyPasswordBox" Padding="9" Background="#0D131D" Foreground="White" BorderBrush="#343B4B" BorderThickness="1"/>
                             <Button x:Name="UseGeminiApiKeyButton" Content="Use Gemini API Key" Click="UseGeminiApiKeyButton_Click" Padding="10,8" Margin="0,10,0,0" Background="#343B4B" Foreground="White" BorderThickness="0"/>
