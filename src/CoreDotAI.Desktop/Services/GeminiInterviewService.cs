@@ -1,18 +1,20 @@
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
 namespace CoreDotAI.Desktop.Services;
 
 /// <summary>
-/// Calls Google's Gemini Interactions API for interview-answer generation.
+/// Generates interview-preparation answers using the Gemini Developer API.
 /// The API key is supplied by the UI and is never persisted by this service.
 /// </summary>
 public sealed class GeminiInterviewService
 {
-    private const string Model = "gemini-3.8-flash";
-    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromMinutes(2) };
+    private const string Model = "gemini-2.5-flash";
+    private static readonly HttpClient HttpClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(60)
+    };
 
     public async Task<string> GenerateAnswerAsync(
         string apiKey,
@@ -29,14 +31,23 @@ public sealed class GeminiInterviewService
         var prompt = BuildPrompt(question, jobRole, candidateContext);
         var requestBody = new
         {
-            model = Model,
-            input = prompt,
-            store = false
+            contents = new[]
+            {
+                new
+                {
+                    role = "user",
+                    parts = new[] { new { text = prompt } }
+                }
+            },
+            generationConfig = new
+            {
+                temperature = 0.4,
+                maxOutputTokens = 700
+            }
         };
 
-        using var request = new HttpRequestMessage(
-            HttpMethod.Post,
-            "https://generativelanguage.googleapis.com/v1beta/interactions");
+        var endpoint = $"https://generativelanguage.googleapis.com/v1beta/models/{Model}:generateContent";
+        using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
         request.Headers.Add("x-goog-api-key", apiKey);
         request.Content = new StringContent(
             JsonSerializer.Serialize(requestBody),
@@ -52,45 +63,40 @@ public sealed class GeminiInterviewService
         if (!response.IsSuccessStatusCode)
         {
             var message = ExtractErrorMessage(responseBody);
-            throw new HttpRequestException($"Gemini request failed ({(int)response.StatusCode}): {message}");
+            throw new HttpRequestException($"Gemini API returned HTTP {(int)response.StatusCode}: {message}");
         }
 
         using var json = JsonDocument.Parse(responseBody);
-        if (json.RootElement.TryGetProperty("output_text", out var outputText) &&
-            outputText.ValueKind == JsonValueKind.String &&
-            !string.IsNullOrWhiteSpace(outputText.GetString()))
+        if (json.RootElement.TryGetProperty("candidates", out var candidates) &&
+            candidates.ValueKind == JsonValueKind.Array &&
+            candidates.GetArrayLength() > 0)
         {
-            return outputText.GetString()!.Trim();
-        }
-
-        // Defensive fallback in case the API response exposes text in output steps.
-        if (json.RootElement.TryGetProperty("steps", out var steps) &&
-            steps.ValueKind == JsonValueKind.Array)
-        {
-            var pieces = new List<string>();
-            foreach (var step in steps.EnumerateArray())
+            var candidate = candidates[0];
+            if (candidate.TryGetProperty("content", out var content) &&
+                content.TryGetProperty("parts", out var parts) &&
+                parts.ValueKind == JsonValueKind.Array)
             {
-                if (step.TryGetProperty("content", out var content) &&
-                    content.ValueKind == JsonValueKind.Array)
+                var textParts = new List<string>();
+                foreach (var part in parts.EnumerateArray())
                 {
-                    foreach (var part in content.EnumerateArray())
+                    if (part.TryGetProperty("text", out var textElement) &&
+                        textElement.ValueKind == JsonValueKind.String)
                     {
-                        if (part.TryGetProperty("text", out var text) &&
-                            text.ValueKind == JsonValueKind.String)
-                        {
-                            var value = text.GetString();
-                            if (!string.IsNullOrWhiteSpace(value))
-                                pieces.Add(value.Trim());
-                        }
+                        var value = textElement.GetString();
+                        if (!string.IsNullOrWhiteSpace(value))
+                            textParts.Add(value.Trim());
                     }
                 }
+
+                if (textParts.Count > 0)
+                    return string.Join(Environment.NewLine, textParts);
             }
 
-            if (pieces.Count > 0)
-                return string.Join(Environment.NewLine, pieces);
+            if (candidate.TryGetProperty("finishReason", out var finishReason))
+                throw new InvalidOperationException($"Gemini did not return answer text. Finish reason: {finishReason.GetString()}.");
         }
 
-        throw new InvalidOperationException("Gemini returned a response, but no answer text was found.");
+        throw new InvalidOperationException("Gemini returned a successful response, but no answer text was found.");
     }
 
     private static string BuildPrompt(string question, string? jobRole, string? candidateContext)
